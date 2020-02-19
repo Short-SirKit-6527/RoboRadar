@@ -1,0 +1,24 @@
+{
+  "VIDEO": {
+    "ENGINE": "pygame",
+    "FPS": 60,
+    "SCREEN_DIMENSIONS": [480,640],
+    "ANTIALIASING": true,
+    "FILLED_POLYGONS": true
+  },
+  "TEAM": {
+    "NAME": null,
+    "NUMBER": 0
+  },
+  "ROBOT": {
+    "NAME": null,
+    "IP_ADDRESS_FORMAT": "10.{}.{}.2",
+    "IP_ADDRESS": null
+  },
+  "FIELD": {
+    "NAME": "FRC_2020"
+  },
+  "SYSTEM": {
+    "FORCE_RUN_AS_MODULE": false
+  }
+}
