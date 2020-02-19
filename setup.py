@@ -1,4 +1,5 @@
 import setuptools
+from roboradar import VERSION
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -6,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="roboradar",
-    version="0.1.3",
+    version=VERSION,
     author="David Johnston",
     author_email="dwjgame11@gmail.com",
     description="Robot position display software for FRC",

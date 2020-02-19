@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-__all__ = ['VideoEngines', 'Radar', ]
-__version__ = '0.1.3'
+__all__ = ['VideoEngines', 'Radar',]
+__version__ = '0.1.4'
 __author__ = 'David Johnston'
 
 import os

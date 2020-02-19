@@ -19,6 +19,6 @@
     "NAME": "FRC_2020"
   },
   "SYSTEM": {
-    "FORCE_RUN_AS_MODULE": false
+    "FORCE_RUN_AS_MODULE": true
   }
 }
