@@ -1,6 +1,6 @@
 # RoboRadar
 Robot position display software for FRC. This project was made to help drivers visualize where robots are located on the field using the odometry systems available in WPILIB.
-![Screenshot of RoboRadar](https://raw.githubusercontent.com/Short-SirKit-6527/RoboRadar/master/docs/images/Screenshot-001.png)
+![Screenshot of RoboRadar](https://raw.githubusercontent.com/Short-SirKit-6527/RoboRadar/master/images/Screenshot-001.png)
 ## Usage
 After installation, there are two main ways to use the program. Independent usage is when you use the program as standalone. It will create it's own window and run as you would expect. Dependent usage is when the program is used in another program. An example would be using this as a plugin for WPILIB Shuffleboard or SmartDashboard (this is not yet implemented, but is planned).
 ### Installation
