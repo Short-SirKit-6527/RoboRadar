@@ -4,14 +4,13 @@ import logging
 from networktables import NetworkTables
 from . import Robot, config
 
-conf = config.get_config()
-
 logging.basicConfig(level=logging.DEBUG)
 
 
 class NetworkTableBot(Robot):
 
     def __init__(self, *args, **kwargs):
+        conf = config.get_config()
         NetworkTables.initialize(server=kwargs.get(
             "server",
             conf["ROBOT"]["IP_ADDRESS"]

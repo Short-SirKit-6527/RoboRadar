@@ -35,6 +35,10 @@ def set_nt_address(tn):
         _conf["ROBOT"]["IP_ADDRESS"] = iaf.format(tn[0], tn[1])
 
 
+def set_config(conf):
+    _conf = conf
+
+
 def get_config():
     if not _conf:
         load_config()
