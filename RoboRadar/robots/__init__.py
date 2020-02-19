@@ -6,8 +6,8 @@ from abc import abstractmethod
 
 
 try:
-    from RoboRadar import config
-    from RoboRadar import dynamic_shape
+    from roboradar import config
+    from roboradar import dynamic_shape
 except ImportError:
     import config
     import dynamic_shape

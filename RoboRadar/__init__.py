@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 __all__ = ['VideoEngines', 'Radar', ]
-__version__ = '0.1.0'
+__version__ = '0.1.3'
 __author__ = 'David Johnston'
 
 import os
@@ -10,13 +10,15 @@ from enum import Enum
 import ctypes
 
 try:
-    from RoboRadar import config
-    from RoboRadar.fields import fields, fieldFiles, fieldNames, fieldThemes
-    import RoboRadar.robots as robots
+    from roboradar import config
+    from roboradar.fields import fields, fieldFiles, fieldNames, fieldThemes
+    import roboradar.robots as robots
+    import roboradar.utils as utils
 except ImportError:
     import config
     from fields import fields, fieldFiles, fieldNames, fieldThemes
     import robots
+    import utils
 
 config.load_config()
 conf = config.get_config()
@@ -58,7 +60,7 @@ class VideoEngines(Enum):
     pygame = "pygame"
 
 
-VERSION = "1.0.0"
+VERSION = __version__
 
 '''
 ============================
@@ -300,7 +302,7 @@ class Radar:
         return self._visibleSurface
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" or __name__ == "independent":
     if conf["TEAM"]["NUMBER"] == 0:
         num = input("TEAM.NUMBER option is set to 0, please enter one: ")
         try:
@@ -315,7 +317,7 @@ if __name__ == "__main__":
         print("Invalid TEAM.NUMBER. TEAM.NUMBER must be an integer.")
         exit(1)
     if not isinstance(conf["TEAM"]["NUMBER"], int):
-        config["TEAM"]["NUMBER"] = int(config["TEAM"]["NUMBER"])
+        conf["TEAM"]["NUMBER"] = int(conf["TEAM"]["NUMBER"])
     if len(str(conf["TEAM"]["NUMBER"])) > 4:
         print("Invalid TEAM.NUMBER. TEAM.NUMBER must be 4 digits or less.")
         exit(1)

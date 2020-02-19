@@ -1,2 +1,3 @@
 @echo OFF
-py -m RoboRadar.__init__
+py -m roboradar
+pause

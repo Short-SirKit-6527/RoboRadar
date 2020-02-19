@@ -15,8 +15,8 @@ def load_config(filePath=None):
     global _conf
     if filePath is None:
         filePath = find_config()
-    print(filePath)
-    print(find_config())
+    # print(filePath)
+    # print(find_config())
     with open(filePath) as f:
         _conf = json.load(f)
         if _conf["ROBOT"]["IP_ADDRESS"] is None:
