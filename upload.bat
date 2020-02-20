@@ -1,5 +1,6 @@
 cmd /c "build.bat"
 py -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-pause
+timeout 60
 py -m twine upload dist/*
-pause
+timeout 60
+pip install --upgrade roboradar

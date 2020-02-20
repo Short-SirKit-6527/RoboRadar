@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 __all__ = ['VideoEngines', 'Radar',]
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 __author__ = 'David Johnston'
 
 import os
@@ -139,7 +139,8 @@ def start_independent(flags=_pgFlag):
     '''Start an independent RoboRadar WindowsError
 flags: flags for pygame.display.set_mode'''
     appid = 'ShortSirkit.RoboRadar.RoboRadar.1_0_0'
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
+    if sys.platform == "win32":
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
 
     pygame.init()
 

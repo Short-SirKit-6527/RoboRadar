@@ -23,6 +23,7 @@ setuptools.setup(
     package_data={
         "roboradar": [
             "icon.png",
+            "icon.ico",
             "RoboRadarConfig.json",
             "utils/__init__.py",
             "utils/dummyboxbot.py"
