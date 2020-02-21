@@ -18,7 +18,7 @@ def load_config(filePath=None):
     # print(filePath)
     # print(find_config())
     with open(filePath) as f:
-        _conf = json.load(f)
+        _conf.update(json.load(f))
         if _conf["ROBOT"]["IP_ADDRESS"] is None:
             _conf["ROBOT"]["IP_ADDRESS_SET"] = False
             if _conf["TEAM"]["NUMBER"] != 0:

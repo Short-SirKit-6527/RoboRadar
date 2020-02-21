@@ -1,25 +1,26 @@
 #!/usr/bin/python3
 
-__all__ = ['VideoEngines', 'Radar',]
-__version__ = '0.1.5'
+__all__ = ['VideoEngines', 'Radar']
+__version__ = '0.1.6'
 __author__ = 'David Johnston'
 
 import os
 import sys
 from enum import Enum
-import ctypes
 import argparse
+if sys.platform == "win32":
+    import ctypes
 
 try:
     from roboradar import config
     from roboradar.fields import fields, fieldFiles, fieldNames, fieldThemes
     import roboradar.robots as robots
-    import roboradar.utils as utils
+    # import roboradar.utils as utils
 except ImportError:
     import config
     from fields import fields, fieldFiles, fieldNames, fieldThemes
     import robots
-    import utils
+    # import utils
 
 config.load_config()
 conf = config.get_config()
@@ -43,86 +44,15 @@ RoboRadar.__init__'""")
     exit()
 
 
-'''
-============================
-
-- DEFINITIONS -
-
-============================
-
-These are standard definitions for the program to use.
-Do not mess with these unless you know what you are doing!
-'''
-
-
 class VideoEngines(Enum):
     native = "native"
     numpy = "numpy"
     pygame = "pygame"
+    opencv = "opencv"
 
 
 VERSION = __version__
 
-'''
-============================
-
-- CONFIG -
-
-============================
-
-Default configuration stored alongside the program.
-These are the settings that will be loaded into an .ini file the
-first time RoboRadar is run.
-'''
-
-# Number of FPS to run the screen at. Recommended 30, 60, or the refresh rate
-# of the monitor
-# Default: 60
-# FPS = 60
-
-# Team number of FRC Team
-# Default: 0
-# TEAM_NUMBER = 0
-
-# NetworkTables server address, leave this unchanged to use the team number.
-# Each {}{} will be filled with part of the team number
-# Default: "10.{}.{}.2"
-# SERVER_ADDRESS = "10.{}.{}.2"
-
-# Set the starting screen width and height
-# Default: 480, 640
-# INITIAL_SCREEN_WIDTH, INITIAL_SCREEN_HEIGHT = 480, 640
-
-# Enable/disable antialiased polygons and lines
-# Default: True
-# ANTIALIASING = True
-
-# Enable/disable filled polygons (gives everything a wireframe look. NOT
-# recommended)
-# Default: True
-# FILLED_POLYGONS = True
-
-# Set video engine for graphics
-# Default: pygame
-# VIDEO_ENGINE = VideoEngines.pygame
-
-# Set starting field
-# Default: "FRC_2020"
-# DEFAULT_FIELD = "FRC_2020"
-
-# Dont mess with this. It WILL cause syncing issues
-'''CONFIG = {
-    "FPS": FPS,
-    "TEAM_NUMBER": TEAM_NUMBER,
-    "SERVER_ADDRESS": SERVER_ADDRESS,
-    "INITIAL_SCREEN_WIDTH": INITIAL_SCREEN_WIDTH,
-    "INITIAL_SCREEN_HEIGHT": INITIAL_SCREEN_HEIGHT,
-    "ANTIALIASING": ANTIALIASING,
-    "FILLED_POLYGONS": FILLED_POLYGONS,
-    "VIDEO_ENGINE": VIDEO_ENGINE,
-    "DEFAULT_FIELD": DEFAULT_FIELD
-    }
-'''
 
 if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -136,51 +66,52 @@ _pgFlag = pygame.RESIZABLE | pygame.HWSURFACE | pygame.DOUBLEBUF
 
 
 def start_independent(flags=_pgFlag):
-    '''Start an independent RoboRadar WindowsError
+    '''Start an independent RoboRadar window.
 flags: flags for pygame.display.set_mode'''
-    appid = 'ShortSirkit.RoboRadar.RoboRadar.1_0_0'
     if sys.platform == "win32":
+        appid = 'ShortSirkit.RoboRadar.RoboRadar.' + __version__.replace(".", "_")
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
 
-    pygame.init()
+    if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
+        pygame.init()
 
-    screen = pygame.display.set_mode(
-        conf["VIDEO"]["SCREEN_DIMENSIONS"],
-        pygame.RESIZABLE | flags)
-    pygame.display.set_caption("RoboRadar v{} - Team {}".format(
-        VERSION,
-        conf["TEAM"]["NUMBER"])
-        )
-    pygame.display.set_icon(pygame.image.load(__file__[:-11] + "icon.png"))
+        screen = pygame.display.set_mode(
+            conf["VIDEO"]["SCREEN_DIMENSIONS"],
+            pygame.RESIZABLE | flags)
+        pygame.display.set_caption("RoboRadar v{} - Team {}".format(
+            VERSION,
+            conf["TEAM"]["NUMBER"])
+            )
+        pygame.display.set_icon(pygame.image.load(__file__[:-11] + "icon.png"))
 
-    clock = pygame.time.Clock()
+        clock = pygame.time.Clock()
 
-    r = Radar(conf["VIDEO"]["SCREEN_DIMENSIONS"])
-    r.loadField(conf["FIELD"]["NAME"])
-    bb = robotList["BoxBot"]()
-    r.add_ds(bb)
+        r = Radar(conf["VIDEO"]["SCREEN_DIMENSIONS"])
+        r.loadField(conf["FIELD"]["NAME"])
+        bb = robotList["BoxBot"]()
+        r.add_ds(bb)
 
-    while True:
-        screen.fill((249, 249, 249))
+        while True:
+            screen.fill((249, 249, 249))
 
-        for event in pygame.event.get():
-            if event.type == pygame.locals.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.locals.VIDEORESIZE:
-                r.resize(event.size)
-                screen = pygame.display.set_mode(
-                    (event.w, event.h),
-                    pygame.RESIZABLE
-                    )
+            for event in pygame.event.get():
+                if event.type == pygame.locals.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.locals.VIDEORESIZE:
+                    r.resize(event.size)
+                    screen = pygame.display.set_mode(
+                        (event.w, event.h),
+                        pygame.RESIZABLE
+                        )
 
-        # Update.
+            # Update.
 
-        screen.blit(r.pygame_render(), (0, 0))
+            screen.blit(r.pygame_render(), (0, 0))
 
-        # Draw.
-        pygame.display.flip()
-        clock.tick(conf["VIDEO"]["FPS"])
+            # Draw.
+            pygame.display.flip()
+            clock.tick(conf["VIDEO"]["FPS"])
 
 
 class Radar:

@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import os
+
 import roboradar
 try:
     from roboradar import config
@@ -7,12 +9,25 @@ except ImportError:
     import config
 import argparse
 
-if __name__ == "__main__" or __name__ == "independent":
-    conf = config.get_config()
+
+def file_path(p=None, *args, **kwargs):
+    if p is None:
+        return None
+    elif os.path.exists(p):
+        return p
+    else:
+        raise FileNotFoundError(p)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', action='store_true')
+    parser.add_argument('-l', '--local', action='store_true')
+    parser.add_argument('-c', '--conf', type=file_path)
     options = parser.parse_args()
-    if options.l:
+    if options.conf is not None:
+        config.load_config(options.conf)
+    conf = config.get_config()
+    if options.local:
         conf["ROBOT"]["IP_ADDRESS"] = "127.0.0.1"
         conf["ROBOT"]["IP_ADDRESS_SET"] = True
         config.set_config(conf)

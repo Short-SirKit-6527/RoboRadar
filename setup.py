@@ -15,7 +15,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Short-SirKit-6527/RoboRadar",
     install_requires=[
-        "pynetworktables"
+        "pynetworktables",
+        "pint"
     ],
     packages=[
         "roboradar"
@@ -36,6 +37,3 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
 )
-
-
-print("done")
