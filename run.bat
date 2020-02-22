@@ -1,3 +1,3 @@
 @echo OFF
-py roboradar -c C:\Users\David\Documents\GitHub\RoboRadar\RoboRadar\RoboRadarConfig.json
+py roboradar/__main__.py -c roboradar\RoboRadarConfig.json
 pause

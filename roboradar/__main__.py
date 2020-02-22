@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
 import os
-
-import roboradar
+try:
+    import roboradar
+except ImportError:
+    import __init__ as roboradar
 try:
     from roboradar import config
 except ImportError:

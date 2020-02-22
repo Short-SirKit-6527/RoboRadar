@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 __all__ = ['VideoEngines', 'Radar']
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __author__ = 'David Johnston'
 
 import os
@@ -49,21 +49,25 @@ class VideoEngines(Enum):
 
 VERSION = __version__
 
-if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
-    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+try:
+    #os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     import pygame
     import pygame.gfxdraw
     import pygame.locals
-
-    _independent_flags = pygame.RESIZABLE | pygame.HWSURFACE | pygame.DOUBLEBUF
-elif VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.tkinter:
+    _independent_flags_pygame = pygame.RESIZABLE | pygame.HWSURFACE | pygame.DOUBLEBUF
+except ImportError:
+    print("pygame not installed")
+try:
     import tkinter
-    _independent_flags = 0
-else:
-    raise ValueError
+    _independent_flags_tkinter = 0
+except ImportError:
+    print("tkinter not installed")
+
+_independent_flags = 0
 
 
-def _start_independent_pygame(flags=_independent_flags):
+def _start_independent_pygame(flags=_independent_flags, engine_flags=_independent_flags_pygame):
     '''Start an independent pygame RoboRadar window.
 flags: flags for pygame.display.set_mode'''
 
@@ -72,7 +76,7 @@ flags: flags for pygame.display.set_mode'''
 
         screen = pygame.display.set_mode(
             conf["VIDEO"]["SCREEN_DIMENSIONS"],
-            pygame.RESIZABLE | flags)
+            pygame.RESIZABLE | engine_flags)
         pygame.display.set_caption("RoboRadar v{} - Team {}".format(
             VERSION,
             conf["TEAM"]["NUMBER"])
@@ -110,7 +114,7 @@ flags: flags for pygame.display.set_mode'''
 
 
 
-def _start_independent_tkinter(flags=_independent_flags):
+def _start_independent_tkinter(flags=_independent_flags, engine_flags=_independent_flags_tkinter):
     '''Start an independent pygame RoboRadar window.
 flags: flags'''
     class IndependentApp(tkinter.Tk):
@@ -148,16 +152,17 @@ flags: flags'''
     root.mainloop()
 
 
-def start_independent(flags=_independent_flags):
+def start_independent(flags=_independent_flags, engine_flags=0):
     if sys.platform == "win32":
         appid = 'ShortSirkit.RoboRadar.RoboRadar'\
             + conf["VIDEO"]["ENGINE"].capitalize()\
             + '.' + __version__.replace(".", "_")
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
+        ctypes.windll.user32.SetProcessDPIAware()
     if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
-        _start_independent_pygame(flags=flags)
+        _start_independent_pygame(flags=flags, engine_flags=engine_flags)
     elif VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.tkinter:
-        _start_independent_tkinter(flags=flags)
+        _start_independent_tkinter(flags=flags, engine_flags=engine_flags)
 
 
 class Radar:
