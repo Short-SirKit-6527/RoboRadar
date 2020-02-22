@@ -27,7 +27,11 @@ setuptools.setup(
             "icon.ico",
             "RoboRadarConfig.json",
             "utils/__init__.py",
-            "utils/dummyboxbot.py"
+            "utils/dummyboxbot.py",
+            "fields/__init__.py",
+            "fields/FRC_2020.py",
+            "robots/__init__.py",
+            "robots/standard.py"
             ]
     },
     classifiers=[
