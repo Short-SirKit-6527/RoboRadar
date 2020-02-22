@@ -13,7 +13,7 @@
   "ROBOT": {
     "NAME": null,
     "IP_ADDRESS_FORMAT": "10.{}.{}.2",
-    "IP_ADDRESS": "127.0.0.1"
+    "IP_ADDRESS": null
   },
   "FIELD": {
     "NAME": "FRC_2020"
