@@ -1,6 +1,6 @@
 {
   "VIDEO": {
-    "ENGINE": "pygame",
+    "ENGINE": "tkinter",
     "FPS": 60,
     "SCREEN_DIMENSIONS": [480,640],
     "ANTIALIASING": true,

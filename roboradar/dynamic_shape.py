@@ -10,6 +10,7 @@ class DynamicShape(ABC):
     rsin = None
     rcos = None
     rtan = None
+    number = None
 
     @abstractmethod
     def getShapes(self):

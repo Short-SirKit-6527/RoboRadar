@@ -36,7 +36,7 @@ def set_nt_address(tn):
 
 
 def set_config(conf):
-    _conf = conf
+    _conf.update(conf)
 
 
 def get_config():
