@@ -6,6 +6,7 @@ from . import Robot, config
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class NetworkTableBot(Robot):
 
     def __init__(self, *args, **kwargs):

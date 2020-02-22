@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 __all__ = ['VideoEngines', 'Radar']
-__version__ = '0.2.0a'
+__version__ = '0.2.0'
 __author__ = 'David Johnston'
 
 import os
@@ -17,7 +17,7 @@ try:
     from roboradar.fields import fields, fieldFiles, fieldNames, fieldThemes
     import roboradar.robots as robots
     # import roboradar.utils as utils
-except (ImportError, ValueError, ModuleNotFoundError):
+except ImportError:
     import config
     from fields import fields, fieldFiles, fieldNames, fieldThemes
     import robots
@@ -27,6 +27,7 @@ config.load_config()
 conf = config.get_config()
 
 robotList = robots.getRobots()
+
 
 if (conf["SYSTEM"]["FORCE_RUN_AS_MODULE"]) and __package__ is None:
     print("""Not running as module, restarting. Please run using 'py -m
@@ -53,6 +54,7 @@ if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
     import pygame
     import pygame.gfxdraw
     import pygame.locals
+
     _independent_flags = pygame.RESIZABLE | pygame.HWSURFACE | pygame.DOUBLEBUF
 elif VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.tkinter:
     import tkinter
@@ -64,6 +66,7 @@ else:
 def _start_independent_pygame(flags=_independent_flags):
     '''Start an independent pygame RoboRadar window.
 flags: flags for pygame.display.set_mode'''
+
     if VideoEngines[conf["VIDEO"]["ENGINE"]] is VideoEngines.pygame:
         pygame.init()
 
@@ -104,6 +107,7 @@ flags: flags for pygame.display.set_mode'''
             # Draw.
             pygame.display.flip()
             clock.tick(conf["VIDEO"]["FPS"])
+
 
 
 def _start_independent_tkinter(flags=_independent_flags):
@@ -403,7 +407,6 @@ class Radar:
 
     def tkinter_get_canvas(self):
         return self._canvas
-
 
 if __name__ == "__main__" or __name__ == "independent":
     parser = argparse.ArgumentParser()
