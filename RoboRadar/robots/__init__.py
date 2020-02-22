@@ -3,7 +3,8 @@
 import importlib
 import os
 from abc import abstractmethod
-
+import sys
+sys.path.append("..")
 
 try:
     from roboradar import config

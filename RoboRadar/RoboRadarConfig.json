@@ -1,6 +1,6 @@
 {
   "VIDEO": {
-    "ENGINE": "pygame",
+    "ENGINE": "tkinter",
     "FPS": 60,
     "SCREEN_DIMENSIONS": [480,640],
     "ANTIALIASING": true,
@@ -13,7 +13,7 @@
   "ROBOT": {
     "NAME": null,
     "IP_ADDRESS_FORMAT": "10.{}.{}.2",
-    "IP_ADDRESS": null
+    "IP_ADDRESS": "127.0.0.1"
   },
   "FIELD": {
     "NAME": "FRC_2020"
