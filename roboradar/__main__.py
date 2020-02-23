@@ -21,7 +21,7 @@ def file_path(p=None, *args, **kwargs):
         raise FileNotFoundError(p)
 
 
-if __name__ == "__main__":
+def start():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--local', action='store_true')
     parser.add_argument('-c', '--conf', type=file_path)
@@ -55,3 +55,7 @@ if __name__ == "__main__":
         config.set_nt_address(conf["TEAM"]["NUMBER"])
     conf = config.get_config()
     roboradar.start_independent()
+
+
+if __name__ == "__main__":
+    start()

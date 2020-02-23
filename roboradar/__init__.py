@@ -51,11 +51,13 @@ VERSION = __version__
 
 
 try:
-    #os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     import pygame
     import pygame.gfxdraw
     import pygame.locals
-    _independent_flags_pygame = pygame.RESIZABLE | pygame.HWSURFACE | pygame.DOUBLEBUF
+    _independent_flags_pygame = pygame.RESIZABLE \
+        | pygame.HWSURFACE \
+        | pygame.DOUBLEBUF
 except ImportError:
     print("pygame not installed")
 try:
@@ -67,7 +69,10 @@ except ImportError:
 _independent_flags = 0
 
 
-def _start_independent_pygame(flags=_independent_flags, engine_flags=_independent_flags_pygame):
+def _start_independent_pygame(
+        flags=_independent_flags,
+        engine_flags=_independent_flags_pygame
+        ):
     '''Start an independent pygame RoboRadar window.
 flags: flags for pygame.display.set_mode'''
 
@@ -77,11 +82,17 @@ flags: flags for pygame.display.set_mode'''
         screen = pygame.display.set_mode(
             conf["VIDEO"]["SCREEN_DIMENSIONS"],
             pygame.RESIZABLE | engine_flags)
-        pygame.display.set_caption("RoboRadar v{} - Team {}".format(
-            VERSION,
-            conf["TEAM"]["NUMBER"])
+        pygame.display.set_caption(
+            "RoboRadar v{} - Team {}".format(
+                VERSION,
+                conf["TEAM"]["NUMBER"]
+                )
             )
-        pygame.display.set_icon(pygame.image.load(__file__[:-11] + "icon.png"))
+        pygame.display.set_icon(
+            pygame.image.load(
+                __file__[:-11] + "icon.png"
+                )
+            )
 
         clock = pygame.time.Clock()
 
@@ -113,8 +124,10 @@ flags: flags for pygame.display.set_mode'''
             clock.tick(conf["VIDEO"]["FPS"])
 
 
-
-def _start_independent_tkinter(flags=_independent_flags, engine_flags=_independent_flags_tkinter):
+def _start_independent_tkinter(
+        flags=_independent_flags,
+        engine_flags=_independent_flags_tkinter
+        ):
     '''Start an independent pygame RoboRadar window.
 flags: flags'''
     class IndependentApp(tkinter.Tk):
@@ -132,7 +145,9 @@ flags: flags'''
             self.protocol("WM_DELETE_WINDOW", self.on_exit)
 
             self.radar = Radar(conf["VIDEO"]["SCREEN_DIMENSIONS"], master=self)
-            self.radar.tkinter_get_canvas().pack()
+            self.c = self.radar.tkinter_get_canvas()
+            self.c.pack(fill=tkinter.BOTH, expand=1)
+            self.c.bind("<Configure>", self.configure)
             self.radar.loadField(conf["FIELD"]["NAME"])
 
             self.bb = robotList["BoxBot"]()
@@ -143,6 +158,9 @@ flags: flags'''
         def update(self, event=None):
             self.radar.tkinter_render()
             self.after(1000 // conf["VIDEO"]["FPS"], self.update)
+
+        def configure(self, event=None):
+            self.radar.resize((event.width, event.height))
 
         def on_exit(self):
             self.destroy()
@@ -221,7 +239,8 @@ class Radar:
                 width=self.dimensions[0],
                 height=self.dimensions[1],
                 bg="#000000",
-                bd=0
+                bd=0,
+                highlightthickness=0
                 )
         self._resize_engineSpecific = self._resize_tkinter
 
@@ -230,32 +249,6 @@ class Radar:
 
     def _loadField_tkinter(self):
         self._canvas.delete("RoboRadar")
-        fd = self.field.Data
-        for shape in fd["static-shapes"]:
-            if shape["type"] == "polygon":
-                self._canvas.create_polygon(
-                    [0] * len(shape["points"]) * 2,
-                    fill="#{0:02x}{1:02x}{2:02x}".format(*shape["color"]),
-                    tags=(
-                        self._tkinter_get_name_tag(
-                            "Background",
-                            shape["name"]),
-                        "RoboRadar-Background",
-                        "RoboRadar"
-                    )
-                )
-            if shape["type"] == "line":
-                self._canvas.create_line(
-                    [0] * len(shape["points"]) * 2,
-                    fill="#{0:02x}{1:02x}{2:02x}".format(*shape["color"]),
-                    tags=(
-                        self._tkinter_get_name_tag(
-                            "Background",
-                            shape["name"]),
-                        "RoboRadar-Background",
-                        "RoboRadar"
-                    )
-                )
         self._resize_tkinter()
 
     def _tkinter_get_name_tag(self, family, name):
@@ -321,9 +314,44 @@ class Radar:
             p_flat.append(point[0])
             p_flat.append(point[1])
         tag = self._tkinter_get_name_tag(family, shape["name"])
-        if shape["type"] == "polygon" or shape["type"] == "line":
+        if shape["type"] == "polygon":
             if "filled" in shape["style"]:
-                self._canvas.coords(tag, *p_flat)
+                fill = "#{0:02x}{1:02x}{2:02x}".format(
+                    *shape["color"])
+            else:
+                fill = ""
+            if "outline" in shape["style"]:
+                outline = "#{0:02x}{1:02x}{2:02x}".format(
+                    *shape["color"])
+            else:
+                outline = ""
+            if len(self._canvas.find_withtag(tag + "-l")) <= 0:
+                self._canvas.create_polygon(
+                    0, 0, 0, 0,
+                    fill=fill,
+                    outline=outline,
+                    tags=(
+                        tag + "-l",
+                        tag,
+                        "RoboRadar-" + family,
+                        "RoboRadar"
+                        )
+                    )
+            self._canvas.coords(tag, *p_flat)
+        elif shape["type"] == "line":
+            if len(self._canvas.find_withtag(tag + "-l")) <= 0:
+                self._canvas.create_line(
+                    0, 0, 0, 0,
+                    fill="#{0:02x}{1:02x}{2:02x}".format(
+                        *shape["color"]),
+                    tags=(
+                        tag + "-l",
+                        tag,
+                        "RoboRadar-" + family,
+                        "RoboRadar"
+                        )
+                    )
+            self._canvas.coords(tag, *p_flat)
 
     def _pygame_draw(self, shape, surface, offset=(0, 0)):
         p = self._convertCoordinateSpace(shape["points"], offset)
@@ -378,68 +406,47 @@ class Radar:
                         "DS{}".format(ds.number),
                         shape["name"]
                         ))) <= 0:
-                    print(self._canvas.find_withtag(self._tkinter_get_name_tag(
-                            "DS{}".format(ds.number),
-                            shape["name"]
-                            )))
-                    if shape["type"] == "polygon":
+                    '''if shape["type"] == "polygon":
                         self._canvas.create_polygon(
-                            [0] * len(shape["points"]) * 2,
+                            0, 0, 0, 0, 0, 0,
                             fill="#{0:02x}{1:02x}{2:02x}".format(
                                 *shape["color"]),
                             tags=(
                                 self._tkinter_get_name_tag(
                                     "DS{}".format(ds.number),
                                     shape["name"]),
-                                "RoboRadar-Background",
+                                "RoboRadar-" + "DS{}".format(ds.number),
                                 "RoboRadar"
                             )
                         )
                     if shape["type"] == "line":
                         self._canvas.create_line(
-                            [0] * len(shape["points"]) * 2,
+                            0, 0, 0, 0, 0, 0,
                             fill="#{0:02x}{1:02x}{2:02x}".format(
                                 *shape["color"]),
                             tags=(
                                 self._tkinter_get_name_tag(
                                     "DS{}".format(ds.number),
                                     shape["name"]),
-                                "RoboRadar-Background",
+                                "RoboRadar-" + "DS{}".format(ds.number),
                                 "RoboRadar"
                             )
-                        )
-                self._tkinter_draw(shape, "DS{}".format(ds.number), self._offset)
+                        )'''
+                self._tkinter_draw(
+                    shape,
+                    "DS{}".format(
+                        ds.number
+                        ),
+                    self._offset
+                    )
 
     def tkinter_get_canvas(self):
         return self._canvas
 
+
 if __name__ == "__main__" or __name__ == "independent":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l', action='store_true')
-    options = parser.parse_args()
-    if options.l:
-        conf["ROBOT"]["IP_ADDRESS"] = "127.0.0.1"
-        conf["ROBOT"]["IP_ADDRESS_SET"] = True
-        config.set_config(conf)
-    else:
-        if conf["TEAM"]["NUMBER"] == 0:
-            num = input("TEAM.NUMBER option is set to 0, please enter one: ")
-            try:
-                conf["TEAM"]["NUMBER"] = float(num.strip())
-            except ValueError:
-                print("No TEAM.NUMBER entered, or non-numeric input given.")
-                exit(1)
-        if conf["TEAM"]["NUMBER"] <= 0:
-            print("Invalid TEAM.NUMBER. TEAM.NUMBER must be greater than 0.")
-            exit(1)
-        if int(conf["TEAM"]["NUMBER"]) != conf["TEAM"]["NUMBER"]:
-            print("Invalid TEAM.NUMBER. TEAM.NUMBER must be an integer.")
-            exit(1)
-        if not isinstance(conf["TEAM"]["NUMBER"], int):
-            conf["TEAM"]["NUMBER"] = int(conf["TEAM"]["NUMBER"])
-        if len(str(conf["TEAM"]["NUMBER"])) > 4:
-            print("Invalid TEAM.NUMBER. TEAM.NUMBER must be 4 digits or less.")
-            exit(1)
-        config.set_nt_address(conf["TEAM"]["NUMBER"])
-    conf = config.get_config()
-    start_independent()
+    try:
+        from roboradar import __main__
+    except ImportError:
+        import __main__
+    __main__.start()
