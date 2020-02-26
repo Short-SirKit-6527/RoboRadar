@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
 __all__ = ['VideoEngines', 'Radar']
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 __author__ = 'David Johnston'
 
 import os
 import sys
 from enum import Enum
-import argparse
+import pint
 if sys.platform == "win32":
     import ctypes
 
@@ -25,6 +25,7 @@ except ImportError:
 
 config.load_config()
 conf = config.get_config()
+ureg = pint.UnitRegistry()
 
 robotList = robots.getRobots()
 
@@ -211,6 +212,14 @@ class Radar:
         if self.fieldIndex is None:
             raise ValueError
         self.field = fields[self.fieldIndex]
+        self.units = self.field.Data["units"]
+        self._unitify(self.field.Data["static-shapes"], self.units)
+        u = ureg(self.units)
+        self.field.Data["width"] = self.field.Data["width"] * u
+        self.field.Data["height"] = self.field.Data["height"] * u
+        self.field.Data["center"] = tuple(
+            i * ureg(self.units) for i in self.field.Data["center"]
+            )
         self._loadField_engineSpecific()
 
     def resize(self, dimensions):
@@ -259,7 +268,8 @@ class Radar:
         dimen = self.dimensions
         self._visibleSurface = pygame.Surface(dimen)
         self._visibleSurface.fill((0, 0, 0))
-        if fd["width"] / fd["height"] <= dimen[0] / dimen[1]:
+        if fd["width"].magnitude / fd["height"].magnitude <=\
+                dimen[0] / dimen[1]:
             height = dimen[1]
             width = fd["width"] / fd["height"] * height
         else:
@@ -297,13 +307,41 @@ class Radar:
         for shape in fd["static-shapes"]:
             self._tkinter_draw(shape, "Background", offset=self._offset)
 
+    def _unitify(self, shapes, units):
+        ''' This function handles making sure units are converted properly
+This should be changed to be a generator that takes a generator so it can
+directly use the output from DynamicShape.
+'''
+        if units is None:
+            units = self.units
+        for shape in range(len(shapes)):
+            unit = ureg.parse_expression(shapes[shape].get("unit", units))
+            for point in range(len(shapes[shape]["points"])):
+                shapes[shape]["points"][point] = (
+                    shapes[shape]["points"][point][0] * unit,
+                    shapes[shape]["points"][point][1] * unit
+                )
+
     def _convertCoordinateSpace(self, points, offset=(0, 0)):
+        ''' This function has three jobs.
+1. Scale coordinates to the screen size.
+2. Apply offsets to move coordinates.
+3. Convert and remove units before data is sent the graphics libraries.
+'''
         p = []
         center = self.field.Data["center"]
-        dimen = (self.field.Data["width"], self.field.Data["height"])
+        dimen = (
+                 self.field.Data["width"].magnitude,
+                 self.field.Data["height"].magnitude
+                 )
         for point in points:
-            x = (point[0] + center[0]) / dimen[0] * self._staticWidth
-            y = (-point[1] + center[1]) / dimen[1] * self._staticHeight
+            try:
+                pv = (point[0].to(self.units), point[1].to(self.units))
+                pv = (pv[0].magnitude, pv[1].magnitude)
+            except AttributeError:
+                pv = point
+            x = (pv[0] + center[0].magnitude) / dimen[0] * self._staticWidth
+            y = (-pv[1] + center[1].magnitude) / dimen[1] * self._staticHeight
             p.append((int(x + offset[0]), int(y + offset[1])))
         return p
 
@@ -395,43 +433,18 @@ class Radar:
         self._visibleSurface.fill((0, 0, 0))
         self._visibleSurface.blit(self._staticSurface, self._offset)
         for ds in self._dsArray:
-            for shape in ds.draw(self.field.Data["orientation"]):
+            shapes = list(ds.draw(self.field.Data["orientation"]))
+            self._unitify(shapes, ds.units)
+            for shape in shapes:
                 self._pygame_draw(shape, self._visibleSurface, self._offset)
         return self._visibleSurface
 
     def tkinter_render(self):
         for ds in self._dsArray:
-            for shape in ds.draw(self.field.Data["orientation"]):
-                if len(self._canvas.find_withtag(self._tkinter_get_name_tag(
-                        "DS{}".format(ds.number),
-                        shape["name"]
-                        ))) <= 0:
-                    '''if shape["type"] == "polygon":
-                        self._canvas.create_polygon(
-                            0, 0, 0, 0, 0, 0,
-                            fill="#{0:02x}{1:02x}{2:02x}".format(
-                                *shape["color"]),
-                            tags=(
-                                self._tkinter_get_name_tag(
-                                    "DS{}".format(ds.number),
-                                    shape["name"]),
-                                "RoboRadar-" + "DS{}".format(ds.number),
-                                "RoboRadar"
-                            )
-                        )
-                    if shape["type"] == "line":
-                        self._canvas.create_line(
-                            0, 0, 0, 0, 0, 0,
-                            fill="#{0:02x}{1:02x}{2:02x}".format(
-                                *shape["color"]),
-                            tags=(
-                                self._tkinter_get_name_tag(
-                                    "DS{}".format(ds.number),
-                                    shape["name"]),
-                                "RoboRadar-" + "DS{}".format(ds.number),
-                                "RoboRadar"
-                            )
-                        )'''
+            shapes = list(ds.draw(self.field.Data["orientation"]))
+            self._unitify(shapes, ds.units)
+            print(shapes)
+            for shape in shapes:
                 self._tkinter_draw(
                     shape,
                     "DS{}".format(

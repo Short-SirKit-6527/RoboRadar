@@ -19,6 +19,7 @@
     "NAME": "FRC_2020"
   },
   "SYSTEM": {
-    "FORCE_RUN_AS_MODULE": true
+    "FORCE_RUN_AS_MODULE": true,
+    "DEFAULT_UNITS": "inch"
   }
 }
