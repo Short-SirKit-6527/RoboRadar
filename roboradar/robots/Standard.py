@@ -41,6 +41,10 @@ class NetworkTableBot(Robot):
     def rtan(self):
         return self.nt.getNumber("posRTan", 0)'''
 
+    @property
+    def units(self):
+        return self.nt.getString("unitsLinear", "inch")
+
     def getTeamColor(self):
         # return purple if no color defined
         return tuple(self.nt.getNumberArray("color", (255, 0, 255)))
@@ -63,7 +67,7 @@ class BoxBot(NetworkTableBot):
     def getInfo(cls):
         data = {
             "name": "BoxBot",
-            "units": "inches",
+            "author": "David Johnston"
             }
         return data
 

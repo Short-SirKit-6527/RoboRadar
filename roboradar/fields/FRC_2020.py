@@ -1,4 +1,4 @@
-from math import pi
+# from math import pi
 
 fieldHeight = (52 * 12 + 5.25) / 2
 edgeHeight = fieldHeight + (10 * 12 + 9 + 1/8)
@@ -30,7 +30,7 @@ Data = {
         "FRC_2020V1",
         },
     "date": "2020-02-08T16:19-05:00",  # -05:00 Eastern no DST. DST is -04:00
-    "units": "inches",
+    "units": "inch",
     "width": edgeWidth * 2,
     "height": edgeHeight * 2,
     "center": (edgeWidth, edgeHeight),

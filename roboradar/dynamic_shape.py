@@ -11,6 +11,7 @@ class DynamicShape(ABC):
     rcos = None
     rtan = None
     number = None
+    units = None
 
     @abstractmethod
     def getShapes(self):
